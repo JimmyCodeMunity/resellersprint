@@ -1,0 +1,505 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Image,
+  FlatList,
+  Button,
+  StyleSheet,
+  Dimensions,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
+import AntIcon from "react-native-vector-icons/AntDesign";
+import Icon from "react-native-vector-icons/MaterialIcons";
+//import Svg, { Path } from 'react-native-svg';
+import FeatherIcon from "react-native-vector-icons/Feather";
+import Modal from "react-native-modal";
+import LottieView from "lottie-react-native";
+
+//import ProductCard from '../components/Product';
+
+const renderProductCard = ({ item }) => <ProductCard product={item} />;
+
+const LandingScreen = ({ navigation, route }) => {
+  const { email, role } = route.params;
+  const [animationLoaded, setAnimationLoaded] = useState(false);
+
+  const categories = [
+    {
+      id: 1,
+      title: "Furniture",
+      color: "#FF6347",
+      image: require("../assets/chair.png"),
+      icon: "log-in",
+    },
+    {
+      id: 2,
+      title: "Jewellery",
+      color: "#4169E1",
+      image: require("../assets/jewel.png"),
+      icon: "search",
+    },
+    {
+      id: 3,
+      title: "Electronics",
+      color: "#32CD32",
+      image: require("../assets/elec.png"),
+    },
+    {
+      id: 4,
+      title: "Apparels & Clothings",
+      color: "#FF8C00",
+      image: require("../assets/cloth.png"),
+    },
+    {
+      id: 5,
+      title: "Kitchenware",
+      color: "#FF8C00",
+      image: require("../assets/kitchen.png"),
+    },
+    {
+      id: 6,
+      title: "Automobile",
+      color: "#FF8C00",
+      image: require("../assets/cars.png"),
+    },
+  ];
+
+  const deals = [
+    {
+      id: 1,
+      title: "Sofa Set",
+      color: "#FF6347",
+      image: require("../assets/furniture.jpg"),
+      icon: "log-in",
+      price: 400,
+    },
+    {
+      id: 2,
+      title: "Rolex Watch",
+      color: "#4169E1",
+      image: require("../assets/watch.png"),
+      icon: "search",
+      price: 4300,
+    },
+    {
+      id: 3,
+      title: "HP probook",
+      color: "#32CD32",
+      image: require("../assets/laptop.jpg"),
+      price: 600,
+    },
+    {
+      id: 4,
+      title: "Tshirt",
+      color: "#FF8C00",
+      image: require("../assets/shirt.png"),
+      price: 1000,
+    },
+    {
+      id: 5,
+      title: "Sandwich Maker",
+      color: "#FF8C00",
+      image: require("../assets/homeapp.jpg"),
+      price: 900,
+    },
+    {
+      id: 6,
+      title: "Ford Mustang 1997",
+      color: "#FF8C00",
+      image: require("../assets/mustang.png"),
+      price: 1200000,
+    },
+  ];
+
+  const caticons = [
+    {
+      id: 1,
+      name: "laptop",
+      title: "Computer",
+      color: "#FF8C00",
+    },
+    {
+      id: 2,
+      name: "car",
+      title: "Automobile",
+    },
+  ];
+
+  const handleGoToBottomTabs = () => {
+    navigation.navigate("Wait", { username, role });
+  };
+
+  const [isBottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const [isLogoutConfirm, setLogoutConfirm] = useState(false);
+
+  const windowHeight = Dimensions.get("window").height;
+  const windowWidth = Dimensions.get("window").width;
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // Simulate a delay for the splash screen (optional)
+    setTimeout(() => {
+      setAnimationLoaded(true);
+      // Navigate to the main screen or any other screen after the splash screen
+      // Replace 'MainScreen' with your desired screen component
+      // navigation.navigate('MainScreen');
+    }, 2000); // Delay in milliseconds (adjust as needed)
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        "http://192.168.2.1085:3000/productlist"
+      );
+      setUsers(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.top}>
+        <View style={styles.menu}>
+          <View>
+            <TouchableOpacity onPress={() => setMenuVisible(true)}>
+              <FeatherIcon name="menu" size={25} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity
+              style={{ marginRight: 10 }}
+              onPress={() => setBottomSheetVisible(true)}
+            >
+              <FeatherIcon name="shopping-bag" size={25} color="white" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{ marginRight: 10 }}
+              onPress={() => setLogoutConfirm(true)}
+            >
+              <FeatherIcon name="log-in" size={25} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.search}>
+          <View style={styles.searchcont}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search Item"
+              placeholderTextColor="#000"
+            />
+          </View>
+          <FeatherIcon name="search" size={25} color="white" />
+        </View>
+      </View>
+
+      <ScrollView vertical={true} style={styles.container1}>
+        <View>
+          <Text style={{ fontWeight: "bold", fontSize: 18, marginTop: 10 }}>
+            Categories
+          </Text>
+        </View>
+
+        <ScrollView
+          style={styles.cats}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+        >
+          <View style={styles.cardContainer} horizontal={true}>
+            {categories.map((item) => (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("Category", {
+                    categoryName: item.title,
+                    categoryImage: item.image,
+                    email,
+                  })
+                }
+                key={item.id}
+              >
+                <View style={styles.card} key={item.id}>
+                  <Text>{item.title}</Text>
+                  <Image
+                    source={item.image}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+
+        <View>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <View>
+              <Text style={{ fontWeight: "bold", fontSize: 18, marginTop: 10 }}>
+                Deals
+              </Text>
+            </View>
+            <View>
+              <Text style={{ fontSize: 13, marginTop: 10 }}>View More</Text>
+            </View>
+          </View>
+          <ScrollView
+            style={styles.deals}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          >
+            {products.map((product) => (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("View", {
+                    itemName: product.title,
+                    itemImage: product.image,
+                    itemPrice: product.price,
+                    email,
+                  })
+                }
+                key={product.id}
+              >
+                <View style={styles.card1} key={product.id}>
+                  <Image
+                    source={product.image}
+                    style={styles.image1}
+                    resizeMode="cover"
+                  />
+                  <Text>{product.title}</Text>
+                  <Text style={{ fontSize: 13, fontWeight: "bold" }}>
+                    Kshs. {product.price}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <Modal
+          isVisible={isBottomSheetVisible}
+          onBackdropPress={() => setBottomSheetVisible(false)}
+          style={styles.modalContainer}
+        >
+          <View
+            style={[
+              styles.bottomSheetContainer1,
+              { height: windowHeight * 0.9 },
+            ]}
+          >
+            <TouchableOpacity onPress={() => setBottomSheetVisible(false)}>
+              <FeatherIcon name="x" size={30} color="orange" />
+            </TouchableOpacity>
+            {
+              <View style={styles.logmenu}>
+                <TouchableOpacity style={styles.btn}>
+                  <Text style={styles.btntext}>Cart</Text>
+                </TouchableOpacity>
+              </View>
+            }
+          </View>
+        </Modal>
+
+        <Modal
+          isVisible={isLogoutConfirm}
+          onBackdropPress={() => setLogoutConfirm(false)}
+          style={styles.modalContainer}
+        >
+          <View
+            style={[
+              styles.bottomSheetContainer2,
+              { height: windowHeight * 0.2 },
+            ]}
+          >
+            <TouchableOpacity onPress={() => setLogoutConfirm(false)}>
+              <FeatherIcon name="x" size={30} color="orange" />
+            </TouchableOpacity>
+            {
+              <View style={styles.logmenu}>
+                <TouchableOpacity style={styles.btn}>
+                  <Text style={styles.btntext}>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            }
+          </View>
+        </Modal>
+
+        <Modal
+          isVisible={isMenuVisible}
+          onBackdropPress={() => setMenuVisible(false)}
+          style={styles.modalContainer}
+        >
+          <View
+            style={[
+              styles.bottomSheetContainer,
+              { height: windowHeight * 0.9 },
+            ]}
+          >
+            <TouchableOpacity onPress={() => setMenuVisible(false)}>
+              <AntIcon name="close" color="orange" size={50} />
+            </TouchableOpacity>
+            {
+              <View style={styles.logmenu}>
+                <Text
+                  style={{
+                    fontSize: 30,
+                    color: "white",
+                    paddingVertical: 20,
+                    fontWeight: "bold",
+                  }}
+                >
+                  Menu
+                </Text>
+                <Text style={styles.options}>
+                  <FeatherIcon name="meh" size={30} color="orange" />
+                  {email}
+                </Text>
+              </View>
+            }
+          </View>
+        </Modal>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    alignItems: "center",
+  },
+  top: {
+    backgroundColor: "orange",
+    height: 160,
+    width: "100%",
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 20,
+  },
+  menu: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingVertical: 25,
+  },
+  search: {
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    flexDirection: "row",
+  },
+  searchcont: {
+    paddingHorizontal: 15,
+    backgroundColor: "#ffffff",
+    paddingVertical: 10,
+    borderRadius: 15,
+    marginVertical: 10,
+    width: "80%",
+  },
+  cardContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    paddingVertical: 12,
+    height: 90,
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "orange",
+    padding: 5,
+    margin: 5,
+    minWidth: 80,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  image: {
+    width: 40,
+    height: 40,
+    resizeMode: "contain",
+  },
+  container1: {
+    paddingHorizontal: 15,
+  },
+  image1: {
+    height: 100,
+    backgroundColor: "#fff",
+    width: 100,
+  },
+  card1: {
+    height: 150,
+    backgroundColor: "#fff",
+    width: 150,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "orange",
+    borderRadius: 12,
+    marginTop: 10,
+    marginRight: 20,
+  },
+  deals: {
+    flexWrap: "wrap",
+    flexDirection: "row",
+  },
+  modalContainer: {
+    justifyContent: "flex-end",
+    margin: 0,
+    height: "50%",
+  },
+  bottomSheetContainer: {
+    padding: 20,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    shadowColor: "#000000",
+    shadowOpacity: 1.2,
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  bottomSheetContainer1: {
+    backgroundColor: "white",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: "#000000",
+    shadowOpacity: 0.5,
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  bottomSheetContainer2: {
+    backgroundColor: "white",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: "#000000",
+    shadowOpacity: 0.5,
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+});
+
+export default LandingScreen;
